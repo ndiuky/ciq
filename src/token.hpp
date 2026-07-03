@@ -1,189 +1,71 @@
 #pragma once
 
-#include <cmath>
-#include <cstdint>
-#include <string_view>
+#include <string>
 #include <variant>
 
-namespace ciq::token {
-    // base
-    struct EoF {
+namespace token {
+    enum class Keyword {
+        FN,
+        RETURN,
+        IF,
     };
 
-    struct ID {
-        std::string_view val;
+    struct LPar {
+        auto operator<=>(const LPar &) const = default;
+    }; // (
+    struct RPar {
+        auto operator<=>(const RPar &) const = default;
+    }; // (
+    struct LCurlyBracket {
+        auto operator<=>(const LCurlyBracket &) const = default;
+    }; // {
+    struct RCurlyBracket {
+        auto operator<=>(const RCurlyBracket &) const = default;
+    }; // {
+    struct Semicolon {
+        auto operator<=>(const Semicolon &) const = default;
+    }; // ;
+    struct Plus {
+        auto operator<=>(const Plus &) const = default;
+    }; // +
+    struct Minus {
+        auto operator<=>(const Minus &) const = default;
+    }; // -
+    struct Asterisk {
+        auto operator<=>(const Asterisk &) const = default;
+    }; // *
+    struct Slash {
+        auto operator<=>(const Slash &) const = default;
+    }; // /
+    struct Comma {
+        auto operator<=>(const Comma &) const = default;
+    }; // ,
+    struct Equal {
+        auto operator<=>(const Equal &) const = default;
+    }; // =
+    struct Equal2 {
+        auto operator<=>(const Equal2 &) const = default;
+    }; // ==
+    struct Identifier {
+        auto operator<=>(const Identifier &) const = default;
+
+        std::string value;
     };
 
-    // types
-    struct INT {
+    struct String {
+        auto operator<=>(const String &) const = default;
+
+        std::string value;
     };
 
-    struct FLOAT {
+    struct Integer {
+        auto operator<=>(const Integer &) const = default;
+
+        int32_t value;
     };
 
-    struct CHAR {
-    };
-
-    struct VOID {
-    };
-
-    struct NULL_KW {
-    };
-
-    // literals
-    struct INT_LITERAL {
-        int32_t val;
-    };
-
-    struct FLOAT_LITERAL {
-        float_t val;
-    };
-
-    struct CHAR_LITERAL {
-        char val;
-    };
-
-    struct STRING_LITERAL {
-        std::string_view val;
-    };
-
-    // logical
-    struct IF {
-    };
-
-    struct ELSE {
-    };
-
-    struct AND {
-    };
-
-    struct OR {
-    };
-
-    struct NOT {
-    };
-
-    struct BIT_AND {
-    };
-
-    struct BIT_OR {
-    };
-
-    struct BIT_XOR {
-    };
-
-    struct SHL {
-    };
-
-    struct SHR {
-    };
-
-    struct BIT_NOT {
-    };
-
-    // syntax
-    struct WHILE {
-    };
-
-    struct FOR {
-    };
-
-    struct BREAK {
-    };
-
-    struct CONTINUE {
-    };
-
-    struct FUNCTION {
-    };
-
-    struct TRY {
-    };
-
-    struct CATCH {
-    };
-
-    struct THROW {
-    };
-
-    struct RETURN {
-    };
-
-    struct PRINT {
-    }; // костыль чтобы не реализовывать в стд
-
-    // symbols
-    struct LPAREN {
-    };
-
-    struct RPAREN {
-    };
-
-    struct LBRACE {
-    };
-
-    struct RBRACE {
-    };
-
-    struct LBRACKET {
-    };
-
-    struct RBRACKET {
-    };
-
-    struct SEMI {
-    };
-
-    struct COMMA {
-    };
-
-    struct ASSIGN {
-    };
-
-    struct DOT {
-    };
-
-    struct COLON {
-    };
-
-    struct QUESTION {
-    };
-
-    // math
-    struct PLUS {
-    };
-
-    struct MINUS {
-    };
-
-    struct MUL {
-    };
-
-    struct DIV {
-    };
-
-    struct MOD {
-    };
-
-    struct token {
-        int32_t line;
-        int32_t col;
-
-        // TODO посмотреть как это можно решить хитровыебаным путем по типу рефлексии cтатической
-        using type = std::variant<
-            EoF, ID,
-
-            INT, FLOAT, CHAR, VOID, NULL_KW,
-
-            INT_LITERAL, FLOAT_LITERAL, CHAR_LITERAL, STRING_LITERAL,
-
-            IF, ELSE, AND, OR, NOT, BIT_AND, BIT_OR, BIT_XOR, SHL, SHR, BIT_NOT,
-
-            WHILE, FOR, BREAK, CONTINUE, FUNCTION, TRY, CATCH, THROW, RETURN, PRINT,
-
-            LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET, SEMI, COMMA, ASSIGN,
-            DOT, COLON, QUESTION,
-
-            PLUS, MINUS, MUL, DIV, MOD>;
-    };
-};
+    using Any = std::variant<
+        Keyword, LPar, RPar, Equal, Equal2, LCurlyBracket, RCurlyBracket, Semicolon, Comma, Plus, Minus, Asterisk, Slash
+        , Identifier,
+        Integer, String>;
+}
