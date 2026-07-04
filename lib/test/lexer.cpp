@@ -13,7 +13,7 @@ constexpr std::string_view expected = R"(
 )";
 
 TEST(LEXER_TEXT, Function) {
-    std::vector<Any> processed = lexer::tokenize(fun);
+    const std::vector<Any> processed = lexer::tokenize(fun);
     std::vector<Any> expected{
         Keyword::FN,
         Identifier{.value = "main"},
@@ -35,7 +35,7 @@ TEST(LEXER_TEXT, Function) {
 }
 
 TEST(LEXER_TEST, RETURN_STRING_LITERAL) {
-    std::vector<Any> processed = lexer::tokenize(expected);
+    const std::vector<Any> processed = lexer::tokenize(expected);
     std::vector<Any> expected {
         String{.value = "hello"},
     };

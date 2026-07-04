@@ -13,34 +13,23 @@
 
 using namespace token;
 
-std::vector<token::Any> lexer::tokenize(std::string_view code) {
+std::vector<token::Any> lexer::tokenize(const std::string_view input) {
     int line = 1;
     std::vector<token::Any> result;
 
-    for (auto it = code.begin(); it != code.end(); ++it) {
-        auto remainingString = std::ranges::subrange(it, code.end());
-        auto findBlank = [&] {
-            return std::ranges::find_if(remainingString, [](char c) {
-                switch (c) {
-                    case ' ':
-                    case '\t':
-                    case '\n':
-                        return true;
-                    default:
-                        return false;
-                }
-            });
-        };
+    for (auto it = input.begin(); it != input.end(); ++it) {
+        auto remainingString = std::ranges::subrange(it, input.end());
         switch (*it) {
             default:
-                if (std::isalpha(*it)) {
-                    auto blank = std::ranges::find_if(remainingString, [](char c) {
-                        return !std::isalnum(c) && c != '_';
+                if (std::isalpha(static_cast<unsigned char>(*it)) || *it == '_') {
+                    const auto blank = std::ranges::find_if(remainingString, [](char c) {
+                        const auto uc = static_cast<unsigned char>(c);
+                        return !std::isalnum(uc) && c != '_';
                     });
-                    std::string_view valueString(it, blank);
-                    it = std::prev(blank);
 
-                    static std::map<std::string_view, Keyword> keywords = {
+                    std::string_view valueString{it, static_cast<std::size_t>(std::distance(it, blank))};
+
+                    static const std::map<std::string_view, Keyword> keywords = {
                         {"return", Keyword::RETURN},
                         {"fn", Keyword::FN},
                         {"if", Keyword::IF},
@@ -48,14 +37,16 @@ std::vector<token::Any> lexer::tokenize(std::string_view code) {
 
                     if (auto keyword = keywords.find(valueString); keyword != keywords.end()) {
                         result.emplace_back(keyword->second);
-                        break;
+                    } else {
+                        result.emplace_back(Identifier{.value = std::string(valueString)});
                     }
-                    result.emplace_back(Identifier{.value = std::string(valueString)});
+
+                    it = std::prev(blank);
                     break;
                 }
 
                 if (std::isdigit(*it)) {
-                    auto end = std::ranges::find_if(remainingString, [](char c) {
+                    const auto end = std::ranges::find_if(remainingString, [](char c) {
                         return !std::isdigit(c);
                     });
                     std::string_view digitString(it, end);
@@ -66,7 +57,7 @@ std::vector<token::Any> lexer::tokenize(std::string_view code) {
                     break;
                 }
 
-                throw std::runtime_error(std::format("Unexpected character: '{}', at line {}", &*it, line));
+                throw std::runtime_error(std::format("Unexpected character: '{}', at line {}", it, line));
 
             case ' ':
             case '\r':
@@ -109,7 +100,7 @@ std::vector<token::Any> lexer::tokenize(std::string_view code) {
                 break;
 
             case '=':
-                if (std::next(it) != code.end()) {
+                if (std::next(it) != input.end()) {
                     if (*std::next(it) == '=') {
                         it++;
                         result.emplace_back(Equal2{});
@@ -120,7 +111,7 @@ std::vector<token::Any> lexer::tokenize(std::string_view code) {
                 break;
 
             case '"':
-                auto end = std::ranges::find(
+                const auto end = std::ranges::find(
                     std::ranges::subrange(std::next(remainingString.begin()), remainingString.end()), '"');
                 if (end == remainingString.end()) {
                     throw std::runtime_error(std::format("string literal is not finished, at line {}", line));
@@ -129,7 +120,7 @@ std::vector<token::Any> lexer::tokenize(std::string_view code) {
                 it = end;
                 break;
         }
-        if (it == code.end()) {
+        if (it == input.end()) {
             break;
         }
     }
